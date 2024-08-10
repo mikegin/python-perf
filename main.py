@@ -40,12 +40,6 @@ tests = [
     test_list, test_set,
     
     # test_float_arithmetic, test_int_arithmetic,
-    
-
-
-
-
-
 ]
 
 with Timer() as t:
@@ -82,7 +76,7 @@ for s, size in enumerate(sizes):
             
             total_cycles_per_test[s][idx] += cycles
 
-print("\nTest, Size, Avg Cycles, Time Taken (ms)")
+print("\nSize, " + ', '.join([test.__name__ for test in tests]))
 avg_cycles = []
 time_taken_ms = []
 
@@ -99,7 +93,7 @@ for s, size in enumerate(sizes):
         avg_cycles_row.append(avg_cycle)
         time_taken_row.append(time_taken)
         
-        print(f'{test.__name__}, {size}, {avg_cycle}, {time_taken}')
+    print(f'{size},' + ', '.join(map(lambda x: str(x), time_taken_row)))
     
     avg_cycles.append(avg_cycles_row)
     time_taken_ms.append(time_taken_row)
