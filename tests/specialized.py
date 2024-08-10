@@ -1,3 +1,8 @@
+'''
+Interesting Notes:
+The specialized case here runs slower as 
+'''
+
 descriptions = ['apples', 'oranges', 'bananas', 'seven']
 some_tags = {
     'apples': '::promotion::',
@@ -31,12 +36,12 @@ def products_to_string_specialized(description, tags):
             result += ', '
         return result
 
-def test_not_specialized():
-    for _ in range(1_000):
+def test_not_specialized(size):
+    for _ in range(size):
         products_to_string(descriptions, some_tags)
         products_to_string(descriptions, no_tags)
 
-def test_specialized():
-    for _ in range(1_000):
+def test_specialized(size):
+    for _ in range(size):
         products_to_string_specialized(descriptions, some_tags)
         products_to_string_specialized(descriptions, no_tags)

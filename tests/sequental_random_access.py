@@ -1,18 +1,25 @@
+import random
 
-K = 1024
-length = 1 * K * K
 
-points = [{'x': 42, 'y': 0} for _ in range(length)]
+points = []
+shuffled_points = []
 
-shuffled_points = points[:]
-random.shuffle(shuffled_points)
+def init(size):
+    points = [{'x': 42, 'y': 0} for _ in range(size)]
 
-def test_sequential_access():
+    shuffled_points = points[:]
+    random.shuffle(shuffled_points)
+
+def test_sequential_access(size):
+    init(size)
+    
     _ = 0
     for point in points:
         _ += point['x']
 
-def test_random_access():
+def test_random_access(size):
+    init(size)
+    
     _ = 0
     for point in shuffled_points:
         _ += point['x']
