@@ -1,10 +1,3 @@
-'''
-Interesting findings:
-Ratio of improvement with increase to number of user ids decreases
-At 1_000, improvement was 2x
-At 1_000_000 improvement looks closer to 1.5x
-'''
-
 def init(size):
     user_ids = list(range(size))
     admin_ids_list = user_ids[:10]

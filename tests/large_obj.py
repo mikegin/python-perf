@@ -1,6 +1,4 @@
 
-# setup
-
 def get_large_obj(size):
     
     by_id = {id: {'id': id, 'name': 'John'} for id in range(size)}

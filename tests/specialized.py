@@ -1,8 +1,3 @@
-'''
-Interesting Notes:
-The specialized case here runs slower as 
-'''
-
 descriptions = ['apples', 'oranges', 'bananas', 'seven']
 some_tags = {
     'apples': '::promotion::',

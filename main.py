@@ -30,7 +30,7 @@ tests = [
     
     # test_l1, test_l2, test_l3, test_ram,
     
-    # test_large_obj_direct, test_large_obj_indirect,
+    # test_large_obj_indirect, test_large_obj_direct
     
     # test_with_eval, test_without_eval,
     
@@ -40,7 +40,7 @@ tests = [
 
     # test_list, test_set,
     
-    # test_float_arithmetic, test_int_arithmetic,
+    test_float_arithmetic, test_int_arithmetic,
 ]
 
 with Timer() as t:
@@ -175,6 +175,5 @@ plt.yscale('log')
 
 plt.xlabel('Size')
 plt.ylabel('Time Taken (ms)')
-plt.title('Time Taken (ms) per Test')
 plt.legend()
 plt.show()

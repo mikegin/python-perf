@@ -36,7 +36,7 @@ def test_compare_float(iterations):
 def test_compare_string_long(iterations):
     position_str = {
         'TOP': 'TOP' * 1000,
-        'BOTTOM': 'BOTTOM' * 1000
+        'BOTTOM': 'TOP' * 1000 + 'B'
     }
     _ = 0
     for i in range(iterations):
