@@ -14,8 +14,14 @@ from tests.large_obj import test_large_obj_direct, test_large_obj_indirect
 from tests.eval_dynamic_key import test_with_eval, test_without_eval
 from tests.string_mutation_concatenation import test_string_mutation, test_string_concatenation
 from tests.specialized import test_not_specialized, test_specialized
+from tests.comprehensions import test_comprehensions, test_regular_loops
 from tests.float_int_arthimetic import test_float_arithmetic, test_int_arithmetic
 from tests.data_structures import test_list, test_set
+from tests.numpy import test_regular_float_sum, test_numpy_float_sum, test_builtin_float_sum
+from tests.numpy_with_array_type import test_regular_float_sum_with_array, test_numpy_float_sum_with_array, test_builtin_float_sum_with_array
+from tests.unrolling import test_sum_list_unrolled_0, test_sum_list_unrolled_2, test_sum_list_unrolled_4, test_sum_list_unrolled_8, test_sum_list_unrolled_16
+from tests.unrolling_cython import test_cython_sum_list_unrolled_0, test_cython_sum_list_unrolled_2, test_cython_sum_list_unrolled_4, test_cython_sum_list_unrolled_8, test_cython_sum_list_unrolled_16
+
 
 tests = [
     # test_compare_int, test_compare_string, test_compare_string_long, test_compare_float
@@ -40,7 +46,18 @@ tests = [
 
     # test_list, test_set,
     
-    test_float_arithmetic, test_int_arithmetic,
+    # test_regular_loops, test_comprehensions,
+    
+    # test_float_arithmetic, test_int_arithmetic,
+    
+    # test_regular_float_sum, test_numpy_float_sum, test_builtin_float_sum,
+    
+    # test_regular_float_sum_with_array, test_numpy_float_sum_with_array, test_builtin_float_sum_with_array,
+    
+    # test_sum_list_unrolled_0, test_sum_list_unrolled_2, test_sum_list_unrolled_4, test_sum_list_unrolled_8, test_sum_list_unrolled_16,
+    
+    test_cython_sum_list_unrolled_0, test_cython_sum_list_unrolled_2, test_cython_sum_list_unrolled_4, test_cython_sum_list_unrolled_8, test_cython_sum_list_unrolled_16
+    
 ]
 
 with Timer() as t:

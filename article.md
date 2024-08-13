@@ -486,7 +486,7 @@ def test_specialized(size):
 
 My results here ran completely condradictory to romgrk's. Specialization here ran slower for each iteration size, with 1_000_000 size showing almost a 100ms slowdown!
 
-**Conclusion:** Be wary of optimizations like these!
+**Conclusion:** Be wary of optimizations like these and benchmark!
 
 ## 10. Data structures
 
@@ -521,22 +521,151 @@ def test_set(size):
 **Conclusion:** The results speak for themselves. Use appropriate data structures!
 
 
-#
+## Lets get specific
+Here and the next few sections, we'll get into more cases that are specific to Python and try to get deeper into performance and how things work
 
-## 11. Python Specific: Float vs Int
+## 11. List comprehensions
 
-See the first comment [here](https://www.reddit.com/r/Python/comments/ddootj/float_arithmetics_as_fast_or_even_faster_than_int/).
+```python
+def test_comprehensions(size):
+    result = [i for i in range(size)]
+    
+    return result
+
+def test_regular_loops(size):
+    result = []
+    for i in range(size):
+        result.append(i)
+    
+    return result
+```
+
+![alt text](profiles/comprehensions.png)
+
+**Conclusion:** List comprehensions are faster, at least for simple cases like these
+
+## 12. Float vs Int
 
 ```python
 def test_float_arithmetic(size):
     s = 1.0
-    for i in range(size):
+    buffer = [float(i) for i in range(size)]
+    for i in buffer:
         s += i
 
 def test_int_arithmetic(size):
     s = 1
-    for i in range(size):
+    buffer = [int(i) for i in range(size)]
+    for i in buffer:
         s += i
 ```
+See the first comment [here](https://www.reddit.com/r/Python/comments/ddootj/float_arithmetics_as_fast_or_even_faster_than_int/).
 
 **Conclusion:** Things start to become noticeable at high iterations. Operating on floats is faster.
+
+
+## 12. Libraries using C/Fortran
+
+Let's build on our previous example and introduce some libraries that use C or Fortran under the hood. I've also introduced the built in `sum` function.
+
+```python
+import numpy as np
+
+def test_regular_float_sum(size):
+    s = 1.0
+    buffer = [float(i) for i in range(size)]
+    for i in buffer:
+        s += i
+
+def test_numpy_float_sum(size):
+    s = 1.0
+    buffer = [float(i) for i in range(size)]
+    s += np.sum(buffer, dtype=np.float64)
+
+def test_builtin_float_sum(size):
+    s = 1.0
+    buffer = [float(i) for i in range(size)]
+    s += sum(buffer)
+```
+
+![alt text](profiles/numpy1.png)
+
+The image may be a bit hard to see but the numpy sum is in the orange, its slower than the regular sum! I thought perhaps this may be because I was running all the tests simultaneously and something external might have effected the results, but running things independently showed the same. The built in version proved the fastest. So how come a library supposedly using C under the hood is so slow?
+
+So I did a bit of cheating here, my apologies. I already know what's going on here because of Casey Muratori's [Performance Aware Programming](https://www.computerenhance.com/p/table-of-contents) course. If you haven't already done so, please go check it out. It really dives deep into performance aware programming and I highly recommend it to really open your mind about what's possible.
+
+Python does a lot of work to figure out what type is what. I thought perhaps passing the `dtype` would be enought for numpy but unfortunately thats not the case. However, using the `array` module with their data type specifiers _does_ have an effect.
+
+```python
+import numpy as np
+import array
+
+def test_regular_float_sum_with_array(size):
+    s = 1.0
+    buffer = array.array('d', [float(i) for i in range(size)]) # the d specifies that the type is a double
+    for i in buffer:
+        s += i
+
+def test_numpy_float_sum_with_array(size):
+    s = 1.0
+    buffer = array.array('d', [float(i) for i in range(size)])
+    s += np.sum(buffer, dtype=np.float64)
+
+def test_builtin_float_sum_with_array(size):
+    s = 1.0
+    buffer = array.array('d', [float(i) for i in range(size)])
+    s += sum(buffer)
+```
+
+![alt text](profiles/numpy2.png)
+
+We see that initial spike for numpy which I'm not sure what that is, again running tests independently showed the same results. However once we get to array sizes higher array than 1000, we start to see a clear winner.
+
+![alt text](profiles/numpy3.png)
+
+**Conclusion**: So it seems like for small array sizes, using something like numpy didn't help. Perhaps because some overhead to dropping down into C code, who knows. Built in sum functions proved better than the regular function in both tests for all iterations. However, for larger input sizes, by specifying the data type, we see a big gain using numpy over the other methods. So key takeway here is number of iterations/size can lead you to take on different solutions. Libraries using C/Fortran under the hood can be highly performant for large sizes.
+
+
+## 13. Diving into C using Cython
+
+We can call C (or Python-esque C) code from Python ourselves using various means. The one I chose is called Cython.
+
+original:
+```python
+def test_sum(size):
+    total = 0
+    numbers = [i for i in range(size)]
+    for i in range(size):
+        total += numbers[i]
+    return total
+```
+
+cython:
+```python
+# optimized.pyx
+
+# Add necessary imports
+import cython
+import numpy as np
+from libc.stdlib cimport malloc, free
+from cython.view cimport array
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def test_cython_sum(int size):
+    cdef long long total = 0
+    cdef int i
+    cdef int[:] numbers = np.arange(size, dtype=np.int32)
+    
+    for i in range(size):
+        total += numbers[i]
+    return total
+```
+
+For a size of 1 million, the Python version took 60ms. Meanwhile the Cython one took around 1ms.
+
+**Conclusion:** With a tiny bit of compiling setup, you can get massive gains orchestrating these small C programs.
+
+## 14. Instruction Level Parallelism
+
+This one requires a bit of a primer. Modern CPUs can execute multiple instructions at the same time _on a single core_. They can execute them out of order, meaning instructions specified later in your code can be executed before instructions specifed previously. Now these parallel executions only happen if, say in our case, the two add instructions don't depend on each other. See [Example 4 here](https://igoro.com/archive/gallery-of-processor-cache-effects/)
